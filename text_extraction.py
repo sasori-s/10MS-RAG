@@ -8,6 +8,10 @@ from pdfminer.pdfpage import PDFPage
 from pdfminer.converter import TextConverter
 from langchain_community.document_loaders import PDFPlumberLoader, PDFMinerLoader
 from pdf2image import convert_from_path
+from PIL import Image
+import pytesseract
+import os
+
 
 class PDFLoaderRegular:
     def __init__(self, pdf_path):
@@ -66,6 +70,7 @@ class PDFLoaderRegular:
 class PDFLoaderAsImage:
     def __init__(self, pdf_path):
         self.pdf_path = pdf_path
+        
     
     def pdf_page_2_image(self):
         images = convert_from_path(self.pdf_path, output_folder='pdf-images', fmt='jpeg')
@@ -74,8 +79,31 @@ class PDFLoaderAsImage:
             image.save(f"page_{i + 1}.jpg", 'JPEG')
 
 
+class Image2Text:
+    def __init__(self, images_folder_path="pdf-images", text_file_path="book-contents"):
+        self.images_folder_path = images_folder_path
+        self.text_files_path = text_file_path
+
+    def extract_text_from_image(self):
+        image_paths = os.listdir(self.images_folder_path)
+        for i, image in enumerate(image_paths):
+            image = os.path.join(self.images_folder_path, image)
+            img = Image.open(image)
+            text = pytesseract.image_to_string(img, lang="ben")
+            self.write_to_textFile(text, i+1)
+
+
+    def write_to_textFile(self, content, index):
+        with open(f"{self.text_files_path}/page_{index}.txt", 'w') as file:
+            file.write(f"{content}\n")
+
+
 if __name__ == '__main__':
     pdf_path = "HSC26-Bangla1st-Paper.pdf"
-    image_pdf_loader = PDFLoaderAsImage(pdf_path)
-    image_pdf_loader.pdf_page_2_image()
 
+    # image_pdf_loader = PDFLoaderAsImage(pdf_path)
+    # image_pdf_loader.pdf_page_2_image("pdf-images/87b9c9f0-2bb0-4d08-8a15-f70a3882abf2-01.jpg")
+
+    image2text = Image2Text()
+    image2text.extract_text_from_image()
+    

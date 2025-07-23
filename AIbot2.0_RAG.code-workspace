@@ -1,0 +1,13 @@
+{
+	"folders": [
+		{
+			"path": "../AIbot2.0"
+		},
+		{
+			"path": "."
+		}
+	],
+	"settings": {
+		"liveServer.settings.multiRootWorkspaceName": "AIbot2.0"
+	}
+}

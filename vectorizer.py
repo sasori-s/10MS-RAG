@@ -4,6 +4,7 @@ from langchain_text_splitters import RecursiveCharacterTextSplitter
 from langchain_huggingface import HuggingFaceEmbeddings
 from langchain_community.embeddings import GPT4AllEmbeddings
 from langchain_chroma import Chroma
+from langchain_core.tools import tool
 import os
 
 class Text2Vector:
@@ -76,6 +77,8 @@ class Text2Vector:
             )
         else:
             self.__call__()
+
+        self.retriever = self.vector_store.as_retriever()
 
     
     def similarity_search(self, query):

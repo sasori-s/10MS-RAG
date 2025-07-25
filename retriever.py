@@ -1,7 +1,9 @@
 from langchain_ollama import ChatOllama
 from langchain_openai import ChatOpenAI
+from langchain_google_genai import ChatGoogleGenerativeAI
 from langchain_core.documents import Document
 from langchain_core.prompts import PromptTemplate, FewShotPromptTemplate
+from langchain_core.tools import tool
 from typing_extensions import List, TypedDict
 import os
 from vectorizer import Text2Vector
@@ -15,15 +17,21 @@ class State(TypedDict):
 class InitiateLLM:
     def __init__(self, extra_info=None):
         self.extra_info = extra_info
-        self.llm = ChatOllama(
+        self.ollama = ChatOllama(
             model="gemma3:4b",            
         )
 
-        self.llm2 = ChatOpenAI(
+        self.openai = ChatOpenAI(
             model="gpt-4o",
             temperature=0,
             api_key=os.getenv("GPT_API"),
         )
+
+        # self.gemini = ChatGoogleGenerativeAI(
+        #     model="gemini-2.5-pro",
+        #     convert_system_message_to_human=True,
+        #     gemini_api_key=os.getenv("GEMINI_API")
+        # )
 
         self.generate_templates()
 
@@ -71,21 +79,26 @@ class Retriever(Text2Vector, InitiateLLM):
         Text2Vector.__init__(self, book_path)
         InitiateLLM.__init__(self, extra_info)
 
+
     def retrieve(self, state: State):
         self.retrieved_docs = self.similarity_search(self.question)
         # state["context"] = self.retrieved_docs
         state.context = self.retrieved_docs
+        
 
+    # @tool(response_format="content_and_artifact")
     def generate(self, state: State):
+        """Retrieve information related to a query."""
         state.question = self.question
         docs_content = "\n\n".join(doc.page_content for doc in state.context)
         message = self.few_shot_prompt.invoke({
             "context": docs_content,
             "question": state.question,
         })
-        response = self.llm.invoke(message)
+        response = self.ollama.invoke(message)
         state.answer = response
         return response
+    
 
     def __call__(self):
         self.retrieve(State)

@@ -66,17 +66,18 @@ class InitiateLLM:
 
 
 class Retriever(Text2Vector, InitiateLLM):
-    def __init__(self, book_path, extra_info=None):
+    def __init__(self, book_path, question, extra_info=None):
+        self.question = question
         Text2Vector.__init__(self, book_path)
         InitiateLLM.__init__(self, extra_info)
 
     def retrieve(self, state: State):
-        self.retrieved_docs = self.similarity_search()
+        self.retrieved_docs = self.similarity_search(self.question)
         # state["context"] = self.retrieved_docs
         state.context = self.retrieved_docs
 
     def generate(self, state: State):
-        state.question = "অনুপমের মামার নাম কি ছিলো ?"
+        state.question = self.question
         docs_content = "\n\n".join(doc.page_content for doc in state.context)
         message = self.few_shot_prompt.invoke({
             "context": docs_content,
@@ -92,5 +93,6 @@ class Retriever(Text2Vector, InitiateLLM):
     
 
 if __name__ == '__main__':
-    retriever = Retriever("book-contents")
+    retriever = Retriever("book-contents", "গহনা গুলা কিসের তৈরি ছিলো?")
     retriever()
+

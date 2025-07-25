@@ -78,9 +78,9 @@ class Text2Vector:
             self.__call__()
 
     
-    def similarity_search(self):
+    def similarity_search(self, query):
         self.if_db_exists()
-        results = self.vector_store.similarity_search("অনুপমের মামার নাম কি ছিল?")
+        results = self.vector_store.similarity_search(query)
         return results
 
 

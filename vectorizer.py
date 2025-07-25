@@ -4,10 +4,14 @@ from langchain_text_splitters import RecursiveCharacterTextSplitter
 from langchain_huggingface import HuggingFaceEmbeddings
 from langchain_community.embeddings import GPT4AllEmbeddings
 from langchain_chroma import Chroma
+import os
 
 class Text2Vector:
-    def __init__(self, file_path):
+    def __init__(self, file_path="book-contents"):
         self.file_path = file_path
+        self.persist_directory = "Chroma-db"
+        self.collection_name = "Bangla-book"
+        self.initialize_embeddings()
         # self.embeddings = OllamaEmbeddings(model='llama3:')
 
     
@@ -53,24 +57,36 @@ class Text2Vector:
     
     def create_vectorstore(self):
         self.vector_store = Chroma(
-            collection_name="Bangla-book",
+            collection_name=self.collection_name,
             embedding_function=self.gpt4_all_embeddings,
-            persist_directory="Chroma-db"
+            persist_directory=self.persist_directory
         )
 
         ids = [str(i) for i in range(len(self.all_splits))]
 
         vector_ids = self.vector_store.add_documents(documents=self.all_splits, ids=ids)
-        
+
+    
+    def if_db_exists(self):
+        if os.path.isdir(self.persist_directory):
+            self.vector_store = Chroma(
+                collection_name=self.collection_name,
+                persist_directory=self.persist_directory,
+                embedding_function=self.gpt4_all_embeddings
+            )
+        else:
+            self.__call__()
+
+    
+    def similarity_search(self):
+        self.if_db_exists()
         results = self.vector_store.similarity_search("অনুপমের মামার নাম কি ছিল?")
         return results
-
 
 
     def __call__(self, *args, **kwds):
         self.load_as_document()
         self.text_splitting()
-        self.initialize_embeddings()
         self.text_embedding()
         self.create_vectorstore()
 

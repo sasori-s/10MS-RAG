@@ -1,6 +1,6 @@
-# 🇧🇩 Bangla-English RAG System - README
+# 🇧🇩 Bangla-English RAG System from Text Book for 10MS- README
 
-A Retrieval-Augmented Generation (RAG) system for Bangla and English documents using OCR, chunking, semantic embeddings, and Gemini 2.0 Flash for answer generation.
+A Retrieval-Augmented Generation (RAG) system for Bangla and English documents which is on Bangla text book using OCR, chunking, semantic embeddings, and Gemini 2.0 Flash for answer generation.
 
 ---
 

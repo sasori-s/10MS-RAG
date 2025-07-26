@@ -8,14 +8,14 @@ from langchain_core.messages import HumanMessage, AIMessage
 
 class LLMConversation(Retriever):
     def __init__(self):
-        Retriever().__init__("book-contets", "গহনা গুলা কিসের তৈরি ছিলো?")
+        Retriever.__init__(self, book_path="book-contets", question="বিয়েতে কল্লানীর মতামত কি ছিলো?")
         self.output_parser = StrOutputParser()
         self.chat_history = []
 
     def defining_memory_prompts(self):
         instruction_to_system = """
         Given a chat history and the lastest user question
-        which might reference context in the chat history, formulate a standalone question
+        which might reference context in the chat history, formulate a standalone question in the provided language (**important)
         which can be understood without the chat history. Do NOT answer the question,
         just reformulate it if neeeded and other return it as is.
         """
@@ -28,10 +28,10 @@ class LLMConversation(Retriever):
             ]
         )
 
-        self.question_chain = question_maker_prompt | self.ollama | StrOutputParser()
+        self.question_chain = question_maker_prompt | self.gemini |  StrOutputParser()
 
         qa_system_prompt = """You are an assistant for question-answering tasks.\
-        Use the following peices of retrieved context to answer the question. \
+        Use the following peices of retrieved context to answer the question in the provided language. \
         IF you don't know the asnwer, provide a summary of the content. Do not generate your answer.\
 
         {context}
@@ -48,11 +48,14 @@ class LLMConversation(Retriever):
     def contextualized_question(self, input: dict):
         if input.get("chat_history"):
             return self.question_chain
+            
         else:
             return input['question']
         
     
     def chat_retrieving(self):
+        self.if_db_exists()
+
         self.retriever_chain = RunnablePassthrough.assign(
             context=self.contextualized_question | self.retriever
         )
@@ -60,16 +63,27 @@ class LLMConversation(Retriever):
         self.rag_chain = (
             self.retriever_chain
             | self.qa_prompt
-            | self.ollama
+            | self.gemini
             | self.output_parser
         )
 
-        question = "Ask something about onupom"
+        ai_message = self.rag_chain.invoke({"question": self.question, "chat_history": self.chat_history})
+        self.chat_history.extend([HumanMessage(content=self.question), ai_message])
+        print(ai_message)
+        
+        self.question = "গহনা গুলা কি ভারী ছিলো?"
 
-        ai_message = self.rag_chain.invoke({"question": question, "chat_history": self.chat_history})
-        self.chat_history.extend([HumanMessage(content=question), ai_message])
+        ai_message = self.rag_chain.invoke({"question": self.question, "chat_history": self.chat_history})
+        self.chat_history.extend([HumanMessage(content=self.question), ai_message])
+        print(ai_message)
+
+
+
+    def __call__(self):
+        self.defining_memory_prompts()
+        self.chat_retrieving()
 
 
 if __name__ == '__main__':
     conversation = LLMConversation()
-    conversation.defining_memory_prompts()
+    conversation()

@@ -4,6 +4,7 @@ from langchain_google_genai import ChatGoogleGenerativeAI
 from langchain_core.documents import Document
 from langchain_core.prompts import PromptTemplate, FewShotPromptTemplate
 from langchain_core.tools import tool
+from langchain_core.messages import HumanMessage
 from typing_extensions import List, TypedDict
 import os
 from vectorizer import Text2Vector
@@ -27,11 +28,11 @@ class InitiateLLM:
             api_key=os.getenv("GPT_API"),
         )
 
-        # self.gemini = ChatGoogleGenerativeAI(
-        #     model="gemini-2.5-pro",
-        #     convert_system_message_to_human=True,
-        #     gemini_api_key=os.getenv("GEMINI_API")
-        # )
+        self.gemini = ChatGoogleGenerativeAI(
+            model="gemini-2.0-flash",
+            convert_system_message_to_human=True,
+            google_api_key=os.getenv("GEMINI_API")
+        )
 
         self.generate_templates()
 
@@ -95,7 +96,7 @@ class Retriever(Text2Vector, InitiateLLM):
             "context": docs_content,
             "question": state.question,
         })
-        response = self.ollama.invoke(message)
+        response = self.geminiß.invoke(message)
         state.answer = response
         return response
     
@@ -106,6 +107,6 @@ class Retriever(Text2Vector, InitiateLLM):
     
 
 if __name__ == '__main__':
-    retriever = Retriever("book-contents", "গহনা গুলা কিসের তৈরি ছিলো?")
+    retriever = Retriever("book-contents", "বিয়েতে কল্লানীর মতামত কি ছিলো?")
     retriever()
 

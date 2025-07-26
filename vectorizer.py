@@ -3,15 +3,16 @@ from langchain_community.document_loaders import DirectoryLoader
 from langchain_text_splitters import RecursiveCharacterTextSplitter
 from langchain_huggingface import HuggingFaceEmbeddings
 from langchain_community.embeddings import GPT4AllEmbeddings
+from langchain_google_genai import GoogleGenerativeAIEmbeddings
 from langchain_chroma import Chroma
 from langchain_core.tools import tool
 import os
 
 class Text2Vector:
-    def __init__(self, file_path="book-contents"):
+    def __init__(self, selected_model="gemini", file_path="book-contents"):
         self.file_path = file_path
-        self.persist_directory = "Chroma-db"
-        self.collection_name = "Bangla-book"
+        self.persist_directory = "Chroma-db-2"
+        self.selected_model = selected_model
         self.initialize_embeddings()
         # self.embeddings = OllamaEmbeddings(model='llama3:')
 
@@ -38,6 +39,7 @@ class Text2Vector:
         # )
 
         self.gpt4_all_embeddings = GPT4AllEmbeddings(model_name="all-MiniLM-L6-v2.gguf2.f16.gguf")
+        self.google_embeddings = GoogleGenerativeAIEmbeddings(model="models/embedding-001", google_api_key=os.getenv("GEMINI_API"))
 
 
     def text_splitting(self):
@@ -58,8 +60,8 @@ class Text2Vector:
     
     def create_vectorstore(self):
         self.vector_store = Chroma(
-            collection_name=self.collection_name,
-            embedding_function=self.gpt4_all_embeddings,
+            collection_name="Bangla-book-google" if self.selected_model == "gemini" else "Bangla-book",
+            embedding_function=self.google_embeddings if self.selected_model == "gemini" else self.gpt4_all_embeddings,
             persist_directory=self.persist_directory
         )
 
@@ -71,11 +73,13 @@ class Text2Vector:
     def if_db_exists(self):
         if os.path.isdir(self.persist_directory):
             self.vector_store = Chroma(
-                collection_name=self.collection_name,
-                persist_directory=self.persist_directory,
-                embedding_function=self.gpt4_all_embeddings
+                collection_name="Bangla-book-google" if self.selected_model == "gemini" else "Bangla-book",
+                embedding_function=self.google_embeddings if self.selected_model == "gemini" else self.gpt4_all_embeddings,
+                persist_directory=self.persist_directory
             )
+            print("Vector store already exists")
         else:
+            print("Craeting new vectorstore")
             self.__call__()
 
         self.retriever = self.vector_store.as_retriever()

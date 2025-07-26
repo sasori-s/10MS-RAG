@@ -13,13 +13,19 @@ A Retrieval-Augmented Generation (RAG) system for Bangla and English documents w
   pip install -r requirements.txt
   ```
 
-2. **Run the conversation system:**
+2. **API Keys/Local models**
+  - Add your Google cloud API key in the environment variable as `GEMINI_API` to get started (recommended)
+  - In the `retirever.py file's InitiateLLM` class, please add your local model's name if you are using one (or comment out that part of the code)
+  - Also add embeddings if you are using local LLM's in the `vectorizer.py file's Text2Vector` class. (or comment out that part of the code)
+  - For the ease of both API or local LLMs, I have kept that part of the code, it might return error if you do not handle it properly.
+
+3. **Run the conversation system:**
 
   ```bash
   python conversation.py
   ```
 
-3. **Add your questions:**
+4. **Add your questions:**
 
   - Open `conversation.py`
   - Locate the variable (e.g., `questions = [...]`) in the main section below

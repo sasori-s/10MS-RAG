@@ -1,0 +1,33 @@
+# QA RAG System - Core Dependencies
+
+# Text Extraction
+pdf2image==1.17.0
+pytesseract==0.3.13
+Pillow==11.2.1
+pdfminer.six==20250506
+pdfplumber==0.11.7
+
+# LangChain Core
+langchain==0.3.23
+langchain-community==0.3.21
+langchain-core==0.3.72
+langchain-text-splitters==0.3.8
+langchain-chroma==0.2.5
+
+# LLM Providers
+langchain-google-genai==2.1.8
+langchain-ollama==0.3.2
+langchain-openai==0.3.12
+langchain-huggingface==0.3.1
+
+# Vector Database
+chromadb==1.0.15
+
+# Embeddings & ML
+sentence-transformers==5.0.0
+
+# Environment & Configuration
+python-dotenv==1.1.0
+
+# Core Python Dependencies
+typing_extensions==4.13.2

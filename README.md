@@ -4,6 +4,35 @@ A Retrieval-Augmented Generation (RAG) system for Bangla and English documents w
 
 ---
 
+## 🚀 Quickstart
+
+1. **Install dependencies:**
+  `Creata a Virtual Environment first to avoid package clash issue`
+
+  ```bash
+  pip install -r requirements.txt
+  ```
+
+2. **Run the conversation system:**
+
+  ```bash
+  python conversation.py
+  ```
+
+3. **Add your questions:**
+
+  - Open `conversation.py`
+  - Locate the variable (e.g., `questions = [...]`) in the main section below
+  - Add your Bangla or English questions as list items, for example:
+    ```python
+    questions = [
+      "বিয়েতে কল্লানীর মতামত কি ছিলো?", or
+      "What was Kallani's opinion about the marriage?"
+    ]
+    ```
+  - Please add a single type of language, (e.g. Only Bangla or only English)
+---
+
 ## 📦 Tools, Libraries, and Packages
 
 | Tool/Library           | Purpose                                         |

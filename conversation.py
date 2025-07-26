@@ -7,8 +7,9 @@ from langchain_core.output_parsers import StrOutputParser
 from langchain_core.messages import HumanMessage, AIMessage
 
 class LLMConversation(Retriever):
-    def __init__(self):
+    def __init__(self, questions):
         Retriever.__init__(self, book_path="book-contets", question="বিয়েতে কল্লানীর মতামত কি ছিলো?")
+        self.questions = questions
         self.output_parser = StrOutputParser()
         self.chat_history = []
 
@@ -67,15 +68,10 @@ class LLMConversation(Retriever):
             | self.output_parser
         )
 
-        ai_message = self.rag_chain.invoke({"question": self.question, "chat_history": self.chat_history})
-        self.chat_history.extend([HumanMessage(content=self.question), ai_message])
-        print(ai_message)
-        
-        self.question = "গহনা গুলা কি ভারী ছিলো?"
-
-        ai_message = self.rag_chain.invoke({"question": self.question, "chat_history": self.chat_history})
-        self.chat_history.extend([HumanMessage(content=self.question), ai_message])
-        print(ai_message)
+        for question in self.questions:
+            ai_message = self.rag_chain.invoke({"question": question, "chat_history": self.chat_history})
+            self.chat_history.extend([HumanMessage(content=self.question), ai_message])
+            print(ai_message)
 
 
 
@@ -85,5 +81,6 @@ class LLMConversation(Retriever):
 
 
 if __name__ == '__main__':
-    conversation = LLMConversation()
+    questions = ["বিয়েতে কল্লানীর মতামত কি ছিলো?", "গহনা গুলা কি ভারী ছিলো?"]
+    conversation = LLMConversation(questions)
     conversation()
